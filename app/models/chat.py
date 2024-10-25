@@ -11,4 +11,4 @@ class Chat(Base):
     chat = Column(String)
     sender = Column(String)
     created_at = Column(DateTime)
-    room_id = Column(Integer)
+    chatting_room_id = Column(Integer)

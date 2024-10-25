@@ -13,7 +13,7 @@ from langchain_chroma import Chroma
 
 async def get_chat(chat: str, room_id: int, db: Session):
     chat_history = get_chats_by_room_id(db, room_id)
-    if (chat_history is None) or (len(chat_history) == 0):
+    if chat_history is None:
         raise HTTPException(status_code=404, detail="Chat not found.")
 
     directory = f"{room_id}"
@@ -23,7 +23,7 @@ async def get_chat(chat: str, room_id: int, db: Session):
         raise HTTPException(status_code=500, detail="Embedding file not found.")
 
     vectorstore = Chroma(persist_directory=embedding_file_path, embedding_function=OpenAIEmbeddings())
-    retriever = vectorstore.as_retriever(search_type="cosine", search_kwargs={"k": 8})
+    retriever = vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 8})
 
     chat_model = ChatOpenAI(model_name="gpt-4")
     conversational_chain = ConversationalRetrievalChain.from_llm(
@@ -33,4 +33,4 @@ async def get_chat(chat: str, room_id: int, db: Session):
     )
 
     answer = conversational_chain({'question': chat, 'chat_history': chat_history})
-    return {"answer": answer}
+    return {"answer": answer["answer"]}

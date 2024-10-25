@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
 from app.schemas.chat_request import ChatRequestBase
 from app.services.chat_service import get_chat
@@ -8,5 +9,5 @@ router = APIRouter(prefix="/api")
 
 
 @router.post("/chat")
-async def chat(request: ChatRequestBase):
-    return get_chat(chat=request.chat, room_id=request.room_id, db=get_db())
+async def chat(request: ChatRequestBase, db: Session = Depends(get_db)):
+    return await get_chat(chat=request.chat, room_id=request.room_id, db=db)
